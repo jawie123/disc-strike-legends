@@ -1,0 +1,6 @@
+m_BuildTarget: Android
+m_AndroidTargetSdkVersion: 34
+m_AndroidMinSdkVersion: 22
+m_AndroidArchitecture: 3
+companyName: Jawwad Studios
+productName: Disc Strike Legends
