@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
-        body { font-family: 'Poppins', sans-serif; background-color: #060913; color: #ffffff; overflow: hidden; user-select: none; touch-action: none; }
+        body { font-family: 'Poppins', sans-serif; background-color: #060913; color: #ffffff; overflow: hidden; user-select: none; }
         .wood-board { background: radial-gradient(circle, #E3A857 0%, #C68B59 65%, #5C3A21 100%); box-shadow: inset 0 0 40px rgba(0,0,0,0.7), 0 10px 30px rgba(0,0,0,0.9); }
         .pocket { background: #020202; box-shadow: inset 0 10px 15px rgba(0,0,0,0.95); }
         .glass-panel { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.12); }
@@ -63,7 +63,7 @@
             <!-- Match Status HUD -->
             <div class="w-full flex justify-between items-center px-3">
                 <div class="glass-panel px-3 py-1 rounded-lg text-xs font-bold text-cyan-400">You: <span id="playerScore">0</span></div>
-                <div class="text-xs font-bold text-amber-400 uppercase tracking-widest animate-pulse" id="turnIndicator">Aim & Shoot</div>
+                <div class="text-xs font-bold text-amber-400 uppercase tracking-widest" id="turnIndicator">Drag Striker & Shoot</div>
                 <div class="glass-panel px-3 py-1 rounded-lg text-xs font-bold text-rose-400">AI: <span id="aiScore">0</span></div>
             </div>
 
@@ -75,16 +75,14 @@
                 <div class="absolute bottom-2 left-2 w-9 h-9 rounded-full pocket"></div>
                 <div class="absolute bottom-2 right-2 w-9 h-9 rounded-full pocket"></div>
 
-                <!-- High-Performance Interactive Canvas -->
+                <!-- Interactive Canvas -->
                 <canvas id="gameCanvas" width="324" height="324" class="cursor-crosshair"></canvas>
             </div>
 
-            <!-- In-game Controls & Instructions -->
-            <div class="w-full glass-panel p-3 rounded-xl flex flex-col items-center space-y-2">
-                <div class="flex justify-between w-full text-[11px] text-gray-400 px-1 font-semibold">
-                    <span>Drag backward on board to aim & power</span>
-                    <button onclick="resetMatch()" class="text-rose-400 hover:underline">Restart</button>
-                </div>
+            <!-- In-game Controls -->
+            <div class="w-full glass-panel p-3 rounded-xl flex justify-between items-center">
+                <span class="text-[11px] text-gray-400 font-semibold">Pull back striker to release</span>
+                <button onclick="resetMatch()" class="px-4 py-1.5 bg-rose-500/20 text-rose-400 border border-rose-500/40 rounded-lg text-xs font-bold">Restart</button>
             </div>
         </div>
 
@@ -102,13 +100,6 @@
                     </div>
                     <span class="text-[10px] bg-amber-500 text-black font-bold px-2.5 py-1 rounded-full">Equipped</span>
                 </div>
-                <div class="glass-panel p-3.5 rounded-2xl flex items-center justify-between">
-                    <div>
-                        <h4 class="font-bold text-xs text-white">Plasma Lightning</h4>
-                        <p class="text-[10px] text-gray-400 mt-0.5">Force: 10 | Aim: 9</p>
-                    </div>
-                    <button onclick="alert('Unlocked successfully!')" class="text-[10px] bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-3 py-1.5 rounded-full">350 <i class="fa-solid fa-coins"></i></button>
-                </div>
             </div>
         </div>
 
@@ -121,7 +112,7 @@
         <button onclick="alert('Leaderboard Rank: #42 Global')" class="flex flex-col items-center hover:text-white"><i class="fa-solid fa-trophy text-base"></i><span class="text-[9px] mt-0.5 font-semibold">Rankings</span></button>
     </footer>
 
-    <!-- ADVANCED GAME ENGINE SCRIPT -->
+    <!-- STABLE GAME ENGINE SCRIPT -->
     <script>
         function switchTab(tab) {
             document.getElementById('homeView').classList.remove('hidden');
@@ -129,7 +120,7 @@
             document.getElementById('shopView').classList.add('hidden');
         }
         function openShop() { document.getElementById('shopView').classList.remove('hidden'); }
-        function closeShop() { document.getElementById('shopView'].classList.add('hidden'); }
+        function closeShop() { document.getElementById('shopView').classList.add('hidden'); }
         function startGame() {
             document.getElementById('homeView').classList.add('hidden');
             document.getElementById('gameView').classList.remove('hidden');
@@ -137,24 +128,26 @@
         }
 
         let canvas, ctx, striker, discs = [], isDragging = false, dragStart = {x:0, y:0}, dragEnd = {x:0, y:0};
-        let playerScore = 0, aiScore = 0;
+        let playerScore = 0, aiScore = 0, animationRunning = false;
 
         function initEngine() {
             canvas = document.getElementById('gameCanvas');
             ctx = canvas.getContext('2d');
 
             resetMatchState();
-            setupInputListeners();
-            requestAnimationFrame(gameLoop);
+            if (!animationRunning) {
+                animationRunning = true;
+                requestAnimationFrame(gameLoop);
+            }
         }
 
         function resetMatchState() {
             striker = { x: 162, y: 260, radius: 14, color: '#f59e0b', vx: 0, vy: 0 };
             discs = [
-                { x: 162, y: 140, radius: 10, color: '#ffffff', active: true, vx: 0, vy: 0 }, // White
-                { x: 142, y: 155, radius: 10, color: '#ef4444', active: true, vx: 0, vy: 0 }, // Red
-                { x: 182, y: 155, radius: 10, color: '#ffffff', active: true, vx: 0, vy: 0 }, // White
-                { x: 162, y: 170, radius: 10, color: '#ef4444', active: true, vx: 0, vy: 0 }  // Red
+                { x: 162, y: 140, radius: 10, color: '#ffffff', active: true, vx: 0, vy: 0 },
+                { x: 142, y: 155, radius: 10, color: '#ef4444', active: true, vx: 0, vy: 0 },
+                { x: 182, y: 155, radius: 10, color: '#ffffff', active: true, vx: 0, vy: 0 },
+                { x: 162, y: 170, radius: 10, color: '#ef4444', active: true, vx: 0, vy: 0 }
             ];
         }
 
@@ -165,90 +158,92 @@
             resetMatchState();
         }
 
-        function setupInputListeners() {
-            const getPos = (e) => {
-                let rect = canvas.getBoundingClientRect();
-                let clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                let clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                return { x: clientX - rect.left, y: clientY - rect.top };
-            };
+        // Mouse & Touch Interaction Setup
+        canvas.onmousedown = (e) => handleStart(e.clientX, e.clientY);
+        window.onmousemove = (e) => handleMove(e.clientX, e.clientY);
+        window.onmouseup = () => handleEnd();
 
-            canvas.onmousedown = canvas.ontouchstart = (e) => {
-                let pos = getPos(e);
-                let dist = Math.hypot(pos.x - striker.x, pos.y - striker.y);
-                if (dist < 35 && Math.abs(striker.vx) < 0.1 && Math.abs(striker.vy) < 0.1) {
-                    isDragging = true;
-                    dragStart = { x: striker.x, y: striker.y };
-                    dragEnd = pos;
-                }
-            };
+        canvas.ontouchstart = (e) => {
+            if (e.touches.length > 0) handleStart(e.touches[0].clientX, e.touches[0].clientY);
+        };
+        window.ontouchmove = (e) => {
+            if (e.touches.length > 0) handleMove(e.touches[0].clientX, e.touches[0].clientY);
+        };
+        window.ontouchend = () => handleEnd();
 
-            window.onmousemove = window.ontouchmove = (e) => {
-                if (!isDragging) return;
-                let pos = getPos(e);
-                dragEnd = pos;
-            };
+        function handleStart(clientX, clientY) {
+            let rect = canvas.getBoundingClientRect();
+            let x = clientX - rect.left;
+            let y = clientY - rect.top;
+            let dist = Math.hypot(x - striker.x, y - striker.y);
 
-            window.onmouseup = window.ontouchend = () => {
-                if (!isDragging) return;
-                isDragging = false;
-                
-                // Calculate pull vector for shot power & direction
-                let dx = dragEnd.x - dragStart.x;
-                let dy = dragEnd.y - dragStart.y;
-                let power = Math.min(Math.hypot(dx, dy) * 0.18, 16);
-                let angle = Math.atan2(dy, dx);
+            if (dist < 35 && Math.abs(striker.vx) < 0.1 && Math.abs(striker.vy) < 0.1) {
+                isDragging = true;
+                dragStart = { x: striker.x, y: striker.y };
+                dragEnd = { x: x, y: y };
+            }
+        }
 
-                if (power > 1) {
-                    striker.vx = Math.cos(angle) * power;
-                    striker.vy = Math.sin(angle) * power;
-                }
-            };
+        function handleMove(clientX, clientY) {
+            if (!isDragging) return;
+            let rect = canvas.getBoundingClientRect();
+            dragEnd = { x: clientX - rect.left, y: clientY - rect.top };
+        }
+
+        function handleEnd() {
+            if (!isDragging) return;
+            isDragging = false;
+
+            let dx = dragEnd.x - dragStart.x;
+            let dy = dragEnd.y - dragStart.y;
+            let power = Math.min(Math.hypot(dx, dy) * 0.15, 14);
+            let angle = Math.atan2(dy, dx);
+
+            if (power > 1) {
+                striker.vx = Math.cos(angle) * power;
+                striker.vy = Math.sin(angle) * power;
+            }
         }
 
         function gameLoop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw Center Board Circle & Design Lines
+            // Center Board Circle
             ctx.beginPath();
             ctx.arc(162, 162, 35, 0, Math.PI * 2);
             ctx.strokeStyle = 'rgba(255,255,255,0.1)';
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Physics Update: Striker
+            // Physics: Striker
             striker.x += striker.vx;
             striker.y += striker.vy;
-            striker.vx *= 0.982;
-            striker.vy *= 0.982;
+            striker.vx *= 0.98;
+            striker.vy *= 0.98;
 
-            // Wall Collisions
             let pad = 18;
             if (striker.x < pad || striker.x > canvas.width - pad) { striker.vx *= -1; striker.x = Math.max(pad, Math.min(canvas.width - pad, striker.x)); }
             if (striker.y < pad || striker.y > canvas.height - pad) { striker.vy *= -1; striker.y = Math.max(pad, Math.min(canvas.height - pad, striker.y)); }
 
-            // Pocket Detection Check (4 Corners)
+            // Pockets
             let pockets = [{x: 22, y: 22}, {x: 302, y: 22}, {x: 22, y: 302}, {x: 302, y: 302}];
             pockets.forEach(p => {
                 if (Math.hypot(striker.x - p.x, striker.y - p.y) < 18) {
-                    // Respawn striker if pocketed
                     striker.x = 162; striker.y = 260; striker.vx = 0; striker.vy = 0;
                 }
             });
 
-            // Physics Update: Discs & Collisions
-            discs.forEach((disc, idx) => {
+            // Physics: Discs
+            discs.forEach((disc) => {
                 if (!disc.active) return;
                 disc.x += disc.vx;
                 disc.y += disc.vy;
-                disc.vx *= 0.982;
-                disc.vy *= 0.982;
+                disc.vx *= 0.98;
+                disc.vy *= 0.98;
 
-                // Wall bounce for discs
                 if (disc.x < pad || disc.x > canvas.width - pad) { disc.vx *= -1; disc.x = Math.max(pad, Math.min(canvas.width - pad, disc.x)); }
                 if (disc.y < pad || disc.y > canvas.height - pad) { disc.vy *= -1; disc.y = Math.max(pad, Math.min(canvas.height - pad, disc.y)); }
 
-                // Pocket check for discs
                 pockets.forEach(p => {
                     if (Math.hypot(disc.x - p.x, disc.y - p.y) < 16) {
                         disc.active = false;
@@ -257,7 +252,7 @@
                     }
                 });
 
-                // Striker vs Disc Collision
+                // Striker vs Disc collision
                 let ddx = disc.x - striker.x;
                 let ddy = disc.y - striker.y;
                 let dist = Math.hypot(ddx, ddy);
@@ -272,14 +267,14 @@
                     let pny = striker.vy - disc.vy;
                     let pVal = pnx * nx + pny * ny;
                     if (pVal > 0) {
-                        disc.vx += pVal * nx * 0.9;
-                        disc.vy += pVal * ny * 0.9;
-                        striker.vx -= pVal * nx * 0.9;
-                        striker.vy -= pVal * ny * 0.9;
+                        disc.vx += pVal * nx * 0.85;
+                        disc.vy += pVal * ny * 0.85;
+                        striker.vx -= pVal * nx * 0.85;
+                        striker.vy -= pVal * ny * 0.85;
                     }
                 }
 
-                // Draw Discs
+                // Draw Disc
                 ctx.beginPath();
                 ctx.arc(disc.x, disc.y, disc.radius, 0, Math.PI * 2);
                 ctx.fillStyle = disc.color;
@@ -289,7 +284,7 @@
                 ctx.stroke();
             });
 
-            // Draw Aiming Guide Line when dragging
+            // Aiming Guide Line
             if (isDragging) {
                 ctx.beginPath();
                 ctx.moveTo(striker.x, striker.y);
